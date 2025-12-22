@@ -91,7 +91,6 @@
       grid-column: 1 / -1;
     }
 
-    /* On small screens, stack (still shows top + bottom bars) */
     @media (max-width: 520px){
       .layout{ grid-template-columns: 1fr; }
       .footer{ grid-column: auto; }
@@ -101,15 +100,15 @@
 <body>
 
   <div class="layout">
-    <!-- TOP BAR (left column): Total left, Reset right -->
+    <!-- TOP BAR: Reset left, Total right (switched) -->
     <div class="panel">
       <div class="bar">
-        <div class="total">Total:<span class="num" id="totalTop">0.00</span></div>
         <button id="resetTop" type="button">Reset</button>
+        <div class="total">Total:<span class="num" id="totalTop">0.00</span></div>
       </div>
     </div>
 
-    <!-- GRID (right column) -->
+    <!-- GRID -->
     <div class="grid" id="grid">
       <!-- Row 1 (red) -->
       <div class="cell r0" data-mult="0"><input value="1" type="number" inputmode="decimal" step="any" /></div>
@@ -132,11 +131,11 @@
       <div class="cell r3" data-mult="0.4"><input value="1" type="number" inputmode="decimal" step="any" /></div>
     </div>
 
-    <!-- BOTTOM BAR (full width): Reset left, Total right (swapped) -->
+    <!-- BOTTOM BAR: Total left, Reset right (switched) -->
     <div class="panel footer">
       <div class="bar">
-        <button id="resetBottom" type="button">Reset</button>
         <div class="total">Total:<span class="num" id="totalBottom">0.00</span></div>
+        <button id="resetBottom" type="button">Reset</button>
       </div>
     </div>
   </div>
