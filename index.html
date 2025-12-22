@@ -3,19 +3,62 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Frankenstein Grid</title>
+  <title>Frankenstein</title>
   <style>
     :root { font-family: -apple-system, system-ui, Segoe UI, Roboto, Arial; }
     body { margin: 16px; }
-    h1 { font-size: 18px; margin: 0 0 12px; }
 
+    /* Split page down the middle */
+    .layout{
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      align-items: start;
+      max-width: 980px;
+      margin: 0 auto;
+    }
+
+    /* Left side (Total + Clear) */
+    .panel{
+      border: 1px solid #e0e0e0;
+      border-radius: 12px;
+      background: #fafafa;
+      padding: 12px;
+    }
+    .topbar{
+      display: flex;
+      align-items: center;
+      justify-content: space-between; /* Total left, Clear right */
+      gap: 10px;
+    }
+    .total{
+      font-size: 18px;
+      font-weight: 900;
+      color: #000;
+      line-height: 1.2;
+    }
+    .total .num{
+      font-size: 26px;
+      font-weight: 900;
+      margin-left: 6px;
+    }
+    button{
+      font-size: 16px;
+      padding: 10px 12px;
+      border-radius: 10px;
+      border: 1px solid #cfcfcf;
+      background: #f6f6f6;
+      cursor: pointer;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    /* Right side (Grid) */
     .grid {
       display: grid;
       grid-template-columns: repeat(3, 1fr); /* 4 rows × 3 columns */
       gap: 10px;
-      max-width: 520px;
     }
-
     .cell {
       border-radius: 12px;
       border: 1px solid rgba(0,0,0,.12);
@@ -26,9 +69,9 @@
       align-items: flex-end;
     }
 
-    /* Top row light red; others light blue */
-    .r0 { background: #ffd6d6; }
-    .r1,.r2,.r3 { background: #d9f2ff; }
+    /* Colors */
+    .r0 { background: #ffd6d6; }           /* top row light red */
+    .r1,.r2,.r3 { background: #d9f2ff; }   /* other rows light blue */
 
     input[type="number"]{
       width: 100%;
@@ -42,66 +85,51 @@
       font-weight: 800;
     }
 
-    .row { max-width: 520px; display: flex; gap: 10px; margin-top: 14px; flex-wrap: wrap; }
-    button {
-      font-size: 16px;
-      padding: 12px 14px;
-      border-radius: 10px;
-      border: 1px solid #cfcfcf;
-      background: #f6f6f6;
-      cursor: pointer;
-    }
-
-    .result {
-      max-width: 520px;
-      margin-top: 14px;
-      padding: 12px 14px;
-      border: 1px solid #e0e0e0;
-      border-radius: 10px;
-      background: #fafafa;
-      font-size: 16px;
-      line-height: 1.45;
-      color: #000;
-      font-weight: 800;
+    /* Keep the split on most screens, but avoid unusable tiny columns */
+    @media (max-width: 520px){
+      .layout{ grid-template-columns: 1fr; }
     }
   </style>
 </head>
 <body>
-  <h1>Grid</h1>
 
-  <!-- Multipliers are kept ONLY in data-mult for calculations; not displayed -->
-  <div class="grid" id="grid">
-    <!-- Row 1 (red): 0, 0.4, 1.7 -->
-    <div class="cell r0" data-mult="0"><input value="1" type="number" inputmode="decimal" step="any" /></div>
-    <div class="cell r0" data-mult="0.4"><input value="1" type="number" inputmode="decimal" step="any" /></div>
-    <div class="cell r0" data-mult="1.7"><input value="1" type="number" inputmode="decimal" step="any" /></div>
+  <div class="layout">
+    <!-- LEFT: Total at top + Clear button to the right -->
+    <div class="panel">
+      <div class="topbar">
+        <div class="total">Total:<span class="num" id="totalNum">0.00</span></div>
+        <button id="clearBtn" type="button">Clear</button>
+      </div>
+    </div>
 
-    <!-- Row 2 (blue): 1.6, 2.4, 2.0 -->
-    <div class="cell r1" data-mult="1.6"><input value="1" type="number" inputmode="decimal" step="any" /></div>
-    <div class="cell r1" data-mult="2.4"><input value="1" type="number" inputmode="decimal" step="any" /></div>
-    <div class="cell r1" data-mult="2.0"><input value="1" type="number" inputmode="decimal" step="any" /></div>
+    <!-- RIGHT: Grid (multipliers hidden; used only for calcs) -->
+    <div class="grid" id="grid">
+      <!-- Row 1 (red): 0, 0.4, 1.7 -->
+      <div class="cell r0" data-mult="0"><input value="1" type="number" inputmode="decimal" step="any" /></div>
+      <div class="cell r0" data-mult="0.4"><input value="1" type="number" inputmode="decimal" step="any" /></div>
+      <div class="cell r0" data-mult="1.7"><input value="1" type="number" inputmode="decimal" step="any" /></div>
 
-    <!-- Row 3 (blue): 1.5, 1.25, 0.75 -->
-    <div class="cell r2" data-mult="1.5"><input value="1" type="number" inputmode="decimal" step="any" /></div>
-    <div class="cell r2" data-mult="1.25"><input value="1" type="number" inputmode="decimal" step="any" /></div>
-    <div class="cell r2" data-mult="0.75"><input value="1" type="number" inputmode="decimal" step="any" /></div>
+      <!-- Row 2 (blue): 1.6, 2.4, 2.0 -->
+      <div class="cell r1" data-mult="1.6"><input value="1" type="number" inputmode="decimal" step="any" /></div>
+      <div class="cell r1" data-mult="2.4"><input value="1" type="number" inputmode="decimal" step="any" /></div>
+      <div class="cell r1" data-mult="2.0"><input value="1" type="number" inputmode="decimal" step="any" /></div>
 
-    <!-- Row 4 (blue): 0.75, 0.8, 0.4 -->
-    <div class="cell r3" data-mult="0.75"><input value="1" type="number" inputmode="decimal" step="any" /></div>
-    <div class="cell r3" data-mult="0.8"><input value="1" type="number" inputmode="decimal" step="any" /></div>
-    <div class="cell r3" data-mult="0.4"><input value="1" type="number" inputmode="decimal" step="any" /></div>
+      <!-- Row 3 (blue): 1.5, 1.25, 0.75 -->
+      <div class="cell r2" data-mult="1.5"><input value="1" type="number" inputmode="decimal" step="any" /></div>
+      <div class="cell r2" data-mult="1.25"><input value="1" type="number" inputmode="decimal" step="any" /></div>
+      <div class="cell r2" data-mult="0.75"><input value="1" type="number" inputmode="decimal" step="any" /></div>
+
+      <!-- Row 4 (blue): 0.75, 0.8, 0.4 -->
+      <div class="cell r3" data-mult="0.75"><input value="1" type="number" inputmode="decimal" step="any" /></div>
+      <div class="cell r3" data-mult="0.8"><input value="1" type="number" inputmode="decimal" step="any" /></div>
+      <div class="cell r3" data-mult="0.4"><input value="1" type="number" inputmode="decimal" step="any" /></div>
+    </div>
   </div>
-
-  <div class="row">
-    <button id="resetBtn" type="button">Reset to 1s</button>
-  </div>
-
-  <div class="result" id="result"></div>
 
 <script>
   const cells = Array.from(document.querySelectorAll(".cell"));
-  const resultEl = document.getElementById("result");
-  const resetBtn = document.getElementById("resetBtn");
+  const totalNumEl = document.getElementById("totalNum");
+  const clearBtn = document.getElementById("clearBtn");
 
   function numOrZero(v) {
     const t = String(v).trim();
@@ -117,7 +145,7 @@
       const input = cell.querySelector("input");
       total += numOrZero(input.value) * mult;
     }
-    resultEl.innerHTML = `Total: <b>${total}</b>`;
+    totalNumEl.textContent = total.toFixed(2); // ✅ round to 2 decimals
   }
 
   // Default 1; focus clears 1; blur restores 1 if blank
@@ -137,7 +165,8 @@
     inp.addEventListener("input", recalc);
   }
 
-  resetBtn.addEventListener("click", () => {
+  // Clear = reset all to 1
+  clearBtn.addEventListener("click", () => {
     for (const cell of cells) cell.querySelector("input").value = "1";
     recalc();
     cells[0].querySelector("input").focus();
