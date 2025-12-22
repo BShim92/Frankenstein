@@ -12,40 +12,40 @@
     .layout{
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 8px;                 /* tighter */
+      gap: 8px;
       align-items: start;
       max-width: 980px;
       margin: 0 auto;
     }
 
-    /* Left side (Total + Clear) */
+    /* Bar styling (top + bottom) */
     .panel{
       border: 1px solid #e0e0e0;
       border-radius: 10px;
       background: #fafafa;
-      padding: 8px;             /* tighter */
+      padding: 8px;
     }
-    .topbar{
+    .bar{
       display: flex;
       align-items: center;
       justify-content: space-between;
       gap: 8px;
     }
     .total{
-      font-size: 14px;          /* smaller */
+      font-size: 14px;
       font-weight: 900;
       color: #000;
       line-height: 1.1;
       white-space: nowrap;
     }
     .total .num{
-      font-size: 18px;          /* smaller */
+      font-size: 18px;
       font-weight: 900;
       margin-left: 6px;
     }
     button{
-      font-size: 14px;          /* smaller */
-      padding: 8px 10px;        /* tighter */
+      font-size: 14px;
+      padding: 8px 10px;
       border-radius: 10px;
       border: 1px solid #cfcfcf;
       background: #f6f6f6;
@@ -58,13 +58,13 @@
     .grid {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
-      gap: 8px;                 /* tighter */
+      gap: 8px;
     }
     .cell {
       border-radius: 10px;
       border: 1px solid rgba(0,0,0,.12);
-      min-height: 56px;         /* ✅ much shorter so 4 rows fit in “3-row” space */
-      padding: 6px;             /* tighter */
+      min-height: 56px;
+      padding: 6px;
       box-sizing: border-box;
       display: flex;
       align-items: flex-end;
@@ -76,8 +76,8 @@
 
     input[type="number"]{
       width: 100%;
-      font-size: 16px;          /* smaller */
-      padding: 8px 8px;         /* tighter */
+      font-size: 16px;
+      padding: 8px 8px;
       border-radius: 9px;
       border: 1px solid rgba(0,0,0,.18);
       background: rgba(255,255,255,.88);
@@ -86,24 +86,30 @@
       font-weight: 800;
     }
 
-    /* Keep the split on most screens, but avoid tiny columns */
+    /* Bottom bar spans full width */
+    .footer{
+      grid-column: 1 / -1;
+    }
+
+    /* On small screens, stack (still shows top + bottom bars) */
     @media (max-width: 520px){
       .layout{ grid-template-columns: 1fr; }
+      .footer{ grid-column: auto; }
     }
   </style>
 </head>
 <body>
 
   <div class="layout">
-    <!-- LEFT: Total + Clear -->
+    <!-- TOP BAR (left column): Total left, Reset right -->
     <div class="panel">
-      <div class="topbar">
-        <div class="total">Total:<span class="num" id="totalNum">0.00</span></div>
-        <button id="clearBtn" type="button">Clear</button>
+      <div class="bar">
+        <div class="total">Total:<span class="num" id="totalTop">0.00</span></div>
+        <button id="resetTop" type="button">Reset</button>
       </div>
     </div>
 
-    <!-- RIGHT: Grid (multipliers hidden; used only for calcs) -->
+    <!-- GRID (right column) -->
     <div class="grid" id="grid">
       <!-- Row 1 (red) -->
       <div class="cell r0" data-mult="0"><input value="1" type="number" inputmode="decimal" step="any" /></div>
@@ -125,12 +131,22 @@
       <div class="cell r3" data-mult="0.8"><input value="1" type="number" inputmode="decimal" step="any" /></div>
       <div class="cell r3" data-mult="0.4"><input value="1" type="number" inputmode="decimal" step="any" /></div>
     </div>
+
+    <!-- BOTTOM BAR (full width): Reset left, Total right (swapped) -->
+    <div class="panel footer">
+      <div class="bar">
+        <button id="resetBottom" type="button">Reset</button>
+        <div class="total">Total:<span class="num" id="totalBottom">0.00</span></div>
+      </div>
+    </div>
   </div>
 
 <script>
   const cells = Array.from(document.querySelectorAll(".cell"));
-  const totalNumEl = document.getElementById("totalNum");
-  const clearBtn = document.getElementById("clearBtn");
+  const totalTopEl = document.getElementById("totalTop");
+  const totalBottomEl = document.getElementById("totalBottom");
+  const resetTop = document.getElementById("resetTop");
+  const resetBottom = document.getElementById("resetBottom");
 
   function numOrZero(v) {
     const t = String(v).trim();
@@ -146,7 +162,15 @@
       const input = cell.querySelector("input");
       total += numOrZero(input.value) * mult;
     }
-    totalNumEl.textContent = total.toFixed(2);
+    const out = total.toFixed(2);
+    totalTopEl.textContent = out;
+    totalBottomEl.textContent = out;
+  }
+
+  function resetAll() {
+    for (const cell of cells) cell.querySelector("input").value = "1";
+    recalc();
+    cells[0].querySelector("input").focus();
   }
 
   // Default 1; focus clears 1; blur restores 1 if blank
@@ -166,12 +190,8 @@
     inp.addEventListener("input", recalc);
   }
 
-  // Clear = reset all to 1
-  clearBtn.addEventListener("click", () => {
-    for (const cell of cells) cell.querySelector("input").value = "1";
-    recalc();
-    cells[0].querySelector("input").focus();
-  });
+  resetTop.addEventListener("click", resetAll);
+  resetBottom.addEventListener("click", resetAll);
 
   recalc();
 </script>
