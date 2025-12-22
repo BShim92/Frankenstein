@@ -8,7 +8,6 @@
     :root { font-family: -apple-system, system-ui, Segoe UI, Roboto, Arial; }
     body { margin: 10px; }
 
-    /* Split page down the middle */
     .layout{
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -18,20 +17,22 @@
       margin: 0 auto;
     }
 
-    /* Bar styling (top + bottom) */
     .panel{
       border: 1px solid #e0e0e0;
       border-radius: 10px;
       background: #fafafa;
       padding: 8px;
     }
+
+    /* 3-item bar: Reset | Total | Reset */
     .bar{
       display: flex;
       align-items: center;
-      justify-content: space-between;
       gap: 8px;
     }
     .total{
+      flex: 1;                 /* center block */
+      text-align: center;      /* center text */
       font-size: 14px;
       font-weight: 900;
       color: #000;
@@ -52,15 +53,15 @@
       cursor: pointer;
       font-weight: 700;
       white-space: nowrap;
+      min-width: 72px;
     }
 
-    /* Right side (Grid) */
-    .grid {
+    .grid{
       display: grid;
       grid-template-columns: repeat(3, 1fr);
       gap: 8px;
     }
-    .cell {
+    .cell{
       border-radius: 10px;
       border: 1px solid rgba(0,0,0,.12);
       min-height: 56px;
@@ -70,7 +71,6 @@
       align-items: flex-end;
     }
 
-    /* Colors */
     .r0 { background: #ffd6d6; }
     .r1,.r2,.r3 { background: #d9f2ff; }
 
@@ -86,10 +86,7 @@
       font-weight: 800;
     }
 
-    /* Bottom bar spans full width */
-    .footer{
-      grid-column: 1 / -1;
-    }
+    .footer{ grid-column: 1 / -1; }
 
     @media (max-width: 520px){
       .layout{ grid-template-columns: 1fr; }
@@ -100,42 +97,40 @@
 <body>
 
   <div class="layout">
-    <!-- TOP BAR: Reset left, Total right (switched) -->
+    <!-- TOP BAR: Reset | Total | Reset -->
     <div class="panel">
       <div class="bar">
-        <button id="resetTop" type="button">Reset</button>
+        <button id="resetTopLeft" type="button">Reset</button>
         <div class="total">Total:<span class="num" id="totalTop">0.00</span></div>
+        <button id="resetTopRight" type="button">Reset</button>
       </div>
     </div>
 
     <!-- GRID -->
     <div class="grid" id="grid">
-      <!-- Row 1 (red) -->
       <div class="cell r0" data-mult="0"><input value="1" type="number" inputmode="decimal" step="any" /></div>
       <div class="cell r0" data-mult="0.4"><input value="1" type="number" inputmode="decimal" step="any" /></div>
       <div class="cell r0" data-mult="1.7"><input value="1" type="number" inputmode="decimal" step="any" /></div>
 
-      <!-- Row 2 (blue) -->
       <div class="cell r1" data-mult="1.6"><input value="1" type="number" inputmode="decimal" step="any" /></div>
       <div class="cell r1" data-mult="2.4"><input value="1" type="number" inputmode="decimal" step="any" /></div>
       <div class="cell r1" data-mult="2.0"><input value="1" type="number" inputmode="decimal" step="any" /></div>
 
-      <!-- Row 3 (blue) -->
       <div class="cell r2" data-mult="1.5"><input value="1" type="number" inputmode="decimal" step="any" /></div>
       <div class="cell r2" data-mult="1.25"><input value="1" type="number" inputmode="decimal" step="any" /></div>
       <div class="cell r2" data-mult="0.75"><input value="1" type="number" inputmode="decimal" step="any" /></div>
 
-      <!-- Row 4 (blue) -->
       <div class="cell r3" data-mult="0.75"><input value="1" type="number" inputmode="decimal" step="any" /></div>
       <div class="cell r3" data-mult="0.8"><input value="1" type="number" inputmode="decimal" step="any" /></div>
       <div class="cell r3" data-mult="0.4"><input value="1" type="number" inputmode="decimal" step="any" /></div>
     </div>
 
-    <!-- BOTTOM BAR: Total left, Reset right (switched) -->
+    <!-- BOTTOM BAR: Reset | Total | Reset -->
     <div class="panel footer">
       <div class="bar">
+        <button id="resetBottomLeft" type="button">Reset</button>
         <div class="total">Total:<span class="num" id="totalBottom">0.00</span></div>
-        <button id="resetBottom" type="button">Reset</button>
+        <button id="resetBottomRight" type="button">Reset</button>
       </div>
     </div>
   </div>
@@ -144,8 +139,13 @@
   const cells = Array.from(document.querySelectorAll(".cell"));
   const totalTopEl = document.getElementById("totalTop");
   const totalBottomEl = document.getElementById("totalBottom");
-  const resetTop = document.getElementById("resetTop");
-  const resetBottom = document.getElementById("resetBottom");
+
+  const resetBtns = [
+    document.getElementById("resetTopLeft"),
+    document.getElementById("resetTopRight"),
+    document.getElementById("resetBottomLeft"),
+    document.getElementById("resetBottomRight"),
+  ];
 
   function numOrZero(v) {
     const t = String(v).trim();
@@ -189,8 +189,7 @@
     inp.addEventListener("input", recalc);
   }
 
-  resetTop.addEventListener("click", resetAll);
-  resetBottom.addEventListener("click", resetAll);
+  for (const b of resetBtns) b.addEventListener("click", resetAll);
 
   recalc();
 </script>
