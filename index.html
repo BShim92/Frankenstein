@@ -8,6 +8,7 @@
     :root { font-family: -apple-system, system-ui, Segoe UI, Roboto, Arial; }
     body { margin: 10px; }
 
+    /* Split page down the middle */
     .layout{
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -17,51 +18,35 @@
       margin: 0 auto;
     }
 
-    .panel{
-      border: 1px solid #e0e0e0;
+    /* Click-to-reset total bars */
+    .totalbar{
+      border: 1px solid rgba(0,0,0,.12);
       border-radius: 10px;
-      background: #fafafa;
-      padding: 8px;
-    }
-
-    /* 3-item bar: Reset | Total | Reset */
-    .bar{
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-    .total{
-      flex: 1;                 /* center block */
-      text-align: center;      /* center text */
-      font-size: 14px;
+      padding: 10px 12px;
+      text-align: center;
       font-weight: 900;
-      color: #000;
-      line-height: 1.1;
-      white-space: nowrap;
-    }
-    .total .num{
-      font-size: 18px;
-      font-weight: 900;
-      margin-left: 6px;
-    }
-    button{
-      font-size: 14px;
-      padding: 8px 10px;
-      border-radius: 10px;
-      border: 1px solid #cfcfcf;
-      background: #f6f6f6;
+      font-size: 22px;
+      line-height: 1;
+      user-select: none;
       cursor: pointer;
-      font-weight: 700;
-      white-space: nowrap;
-      min-width: 72px;
+      color: #000;
     }
+    .totalbar:active{ transform: translateY(1px); }
 
+    /* Total color bands */
+    .t-red    { background: #ff5a5a; }
+    .t-orange { background: #ffb34d; }
+    .t-yellow { background: #ffe066; }
+    .t-green  { background: #67d36b; }
+
+    /* Grid */
     .grid{
       display: grid;
       grid-template-columns: repeat(3, 1fr);
       gap: 8px;
     }
     .cell{
+      position: relative;
       border-radius: 10px;
       border: 1px solid rgba(0,0,0,.12);
       min-height: 56px;
@@ -71,8 +56,24 @@
       align-items: flex-end;
     }
 
+    /* Colors */
     .r0 { background: #ffd6d6; }
     .r1,.r2,.r3 { background: #d9f2ff; }
+
+    /* Small weight label in each cell */
+    .w{
+      position: absolute;
+      top: 6px;
+      left: 6px;
+      font-size: 11px;
+      font-weight: 800;
+      color: #000;
+      padding: 2px 6px;
+      border-radius: 999px;
+      background: rgba(255,255,255,.75);
+      border: 1px solid rgba(0,0,0,.10);
+      pointer-events: none;
+    }
 
     input[type="number"]{
       width: 100%;
@@ -86,6 +87,7 @@
       font-weight: 800;
     }
 
+    /* Bottom bar spans full width */
     .footer{ grid-column: 1 / -1; }
 
     @media (max-width: 520px){
@@ -95,86 +97,142 @@
   </style>
 </head>
 <body>
-
   <div class="layout">
-    <!-- TOP BAR: Reset | Total | Reset -->
-    <div class="panel">
-      <div class="bar">
-        <button id="resetTopLeft" type="button">Reset</button>
-        <div class="total">Total:<span class="num" id="totalTop">0.00</span></div>
-        <button id="resetTopRight" type="button">Reset</button>
-      </div>
-    </div>
+    <!-- TOP TOTAL BAR (click = reset) -->
+    <div id="barTop" class="totalbar t-red">0.00</div>
 
     <!-- GRID -->
     <div class="grid" id="grid">
-      <div class="cell r0" data-mult="0"><input value="1" type="number" inputmode="decimal" step="any" /></div>
-      <div class="cell r0" data-mult="0.4"><input value="1" type="number" inputmode="decimal" step="any" /></div>
-      <div class="cell r0" data-mult="1.7"><input value="1" type="number" inputmode="decimal" step="any" /></div>
+      <!-- Row 1 (red): 0, 0.4, 1.7 -->
+      <!-- Top-left red box: NO input -->
+      <div class="cell r0" data-mult="0">
+        <div class="w">0</div>
+      </div>
 
-      <div class="cell r1" data-mult="1.6"><input value="1" type="number" inputmode="decimal" step="any" /></div>
-      <div class="cell r1" data-mult="2.4"><input value="1" type="number" inputmode="decimal" step="any" /></div>
-      <div class="cell r1" data-mult="2.0"><input value="1" type="number" inputmode="decimal" step="any" /></div>
+      <div class="cell r0" data-mult="0.4">
+        <div class="w">0.4</div>
+        <input value="1" type="number" inputmode="decimal" step="any" />
+      </div>
 
-      <div class="cell r2" data-mult="1.5"><input value="1" type="number" inputmode="decimal" step="any" /></div>
-      <div class="cell r2" data-mult="1.25"><input value="1" type="number" inputmode="decimal" step="any" /></div>
-      <div class="cell r2" data-mult="0.75"><input value="1" type="number" inputmode="decimal" step="any" /></div>
+      <div class="cell r0" data-mult="1.7">
+        <div class="w">1.7</div>
+        <input value="1" type="number" inputmode="decimal" step="any" />
+      </div>
 
-      <div class="cell r3" data-mult="0.75"><input value="1" type="number" inputmode="decimal" step="any" /></div>
-      <div class="cell r3" data-mult="0.8"><input value="1" type="number" inputmode="decimal" step="any" /></div>
-      <div class="cell r3" data-mult="0.4"><input value="1" type="number" inputmode="decimal" step="any" /></div>
-    </div>
+      <!-- Row 2 (blue): 1.6, 2.4, 2.0 -->
+      <div class="cell r1" data-mult="1.6">
+        <div class="w">1.6</div>
+        <input value="1" type="number" inputmode="decimal" step="any" />
+      </div>
 
-    <!-- BOTTOM BAR: Reset | Total | Reset -->
-    <div class="panel footer">
-      <div class="bar">
-        <button id="resetBottomLeft" type="button">Reset</button>
-        <div class="total">Total:<span class="num" id="totalBottom">0.00</span></div>
-        <button id="resetBottomRight" type="button">Reset</button>
+      <div class="cell r1" data-mult="2.4">
+        <div class="w">2.4</div>
+        <input value="1" type="number" inputmode="decimal" step="any" />
+      </div>
+
+      <div class="cell r1" data-mult="2.0">
+        <div class="w">2.0</div>
+        <input value="1" type="number" inputmode="decimal" step="any" />
+      </div>
+
+      <!-- Row 3 (blue): 1.5, 1.25, 0.75 -->
+      <div class="cell r2" data-mult="1.5">
+        <div class="w">1.5</div>
+        <input value="1" type="number" inputmode="decimal" step="any" />
+      </div>
+
+      <div class="cell r2" data-mult="1.25">
+        <div class="w">1.25</div>
+        <input value="1" type="number" inputmode="decimal" step="any" />
+      </div>
+
+      <div class="cell r2" data-mult="0.75">
+        <div class="w">0.75</div>
+        <input value="1" type="number" inputmode="decimal" step="any" />
+      </div>
+
+      <!-- Row 4 (blue): 0.75, 0.8, 0.4 -->
+      <div class="cell r3" data-mult="0.75">
+        <div class="w">0.75</div>
+        <input value="1" type="number" inputmode="decimal" step="any" />
+      </div>
+
+      <div class="cell r3" data-mult="0.8">
+        <div class="w">0.8</div>
+        <input value="1" type="number" inputmode="decimal" step="any" />
+      </div>
+
+      <div class="cell r3" data-mult="0.4">
+        <div class="w">0.4</div>
+        <input value="1" type="number" inputmode="decimal" step="any" />
       </div>
     </div>
+
+    <!-- BOTTOM TOTAL BAR (click = reset) -->
+    <div id="barBottom" class="totalbar t-red footer">0.00</div>
   </div>
 
 <script>
   const cells = Array.from(document.querySelectorAll(".cell"));
-  const totalTopEl = document.getElementById("totalTop");
-  const totalBottomEl = document.getElementById("totalBottom");
-
-  const resetBtns = [
-    document.getElementById("resetTopLeft"),
-    document.getElementById("resetTopRight"),
-    document.getElementById("resetBottomLeft"),
-    document.getElementById("resetBottomRight"),
-  ];
+  const barTop = document.getElementById("barTop");
+  const barBottom = document.getElementById("barBottom");
 
   function numOrZero(v) {
-    const t = String(v).trim();
+    const t = String(v ?? "").trim();
     if (t === "") return 0;
     const n = Number(t);
     return Number.isFinite(n) ? n : 0;
+  }
+
+  function bandClass(total){
+    if (total < 17) return "t-red";
+    if (total < 17.5) return "t-orange";
+    if (total < 18) return "t-yellow";
+    return "t-green";
+  }
+
+  function setBar(total){
+    const out = total.toFixed(2);
+    barTop.textContent = out;
+    barBottom.textContent = out;
+
+    const cls = bandClass(total);
+    for (const el of [barTop, barBottom]) {
+      el.classList.remove("t-red","t-orange","t-yellow","t-green");
+      el.classList.add(cls);
+    }
   }
 
   function recalc() {
     let total = 0;
     for (const cell of cells) {
       const mult = Number(cell.dataset.mult || "0");
-      const input = cell.querySelector("input");
-      total += numOrZero(input.value) * mult;
+      const input = cell.querySelector("input"); // may not exist (top-left)
+      const val = input ? numOrZero(input.value) : 0;
+      total += val * mult;
     }
-    const out = total.toFixed(2);
-    totalTopEl.textContent = out;
-    totalBottomEl.textContent = out;
+    setBar(total);
   }
 
-  function resetAll() {
-    for (const cell of cells) cell.querySelector("input").value = "1";
+  function resetAll(){
+    for (const cell of cells) {
+      const input = cell.querySelector("input");
+      if (input) input.value = "1";
+    }
     recalc();
-    cells[0].querySelector("input").focus();
+    // focus first actual input (skip the no-input cell)
+    const firstInput = document.querySelector(".cell input");
+    if (firstInput) firstInput.focus();
   }
 
-  // Default 1; focus clears 1; blur restores 1 if blank
+  // Click bar = reset
+  barTop.addEventListener("click", resetAll);
+  barBottom.addEventListener("click", resetAll);
+
+  // Default 1 behavior: focus clears 1; blur restores 1 if blank
   for (const cell of cells) {
     const inp = cell.querySelector("input");
+    if (!inp) continue;
 
     inp.addEventListener("focus", () => {
       if (inp.value.trim() === "1") inp.value = "";
@@ -188,8 +246,6 @@
 
     inp.addEventListener("input", recalc);
   }
-
-  for (const b of resetBtns) b.addEventListener("click", resetAll);
 
   recalc();
 </script>
