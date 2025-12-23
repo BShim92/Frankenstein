@@ -30,10 +30,12 @@
       user-select: none;
       cursor: pointer;
       color: #000;
+      background: #fff; /* default white */
     }
     .totalbar:active{ transform: translateY(1px); }
 
     /* Total color bands */
+    .t-white  { background: #ffffff; }
     .t-red    { background: #ff5a5a; }
     .t-orange { background: #ffb34d; }
     .t-yellow { background: #ffe066; }
@@ -49,8 +51,8 @@
       position: relative;
       border-radius: 10px;
       border: 1px solid rgba(0,0,0,.12);
-      min-height: 56px;
-      padding: 6px;
+      min-height: 64px;      /* slightly taller */
+      padding: 28px 6px 6px; /* ✅ top padding reserves space for weight label */
       box-sizing: border-box;
       display: flex;
       align-items: flex-end;
@@ -60,17 +62,17 @@
     .r0 { background: #ffd6d6; }
     .r1,.r2,.r3 { background: #d9f2ff; }
 
-    /* Small weight label in each cell */
+    /* Small weight label in each cell (won’t overlap input now) */
     .w{
       position: absolute;
       top: 6px;
       left: 6px;
-      font-size: 11px;
+      font-size: 10px;
       font-weight: 800;
       color: #000;
       padding: 2px 6px;
       border-radius: 999px;
-      background: rgba(255,255,255,.75);
+      background: rgba(255,255,255,.80);
       border: 1px solid rgba(0,0,0,.10);
       pointer-events: none;
     }
@@ -99,7 +101,7 @@
 <body>
   <div class="layout">
     <!-- TOP TOTAL BAR (click = reset) -->
-    <div id="barTop" class="totalbar t-red">0.00</div>
+    <div id="barTop" class="totalbar t-white">0.00</div>
 
     <!-- GRID -->
     <div class="grid" id="grid">
@@ -169,7 +171,7 @@
     </div>
 
     <!-- BOTTOM TOTAL BAR (click = reset) -->
-    <div id="barBottom" class="totalbar t-red footer">0.00</div>
+    <div id="barBottom" class="totalbar t-white footer">0.00</div>
   </div>
 
 <script>
@@ -184,6 +186,16 @@
     return Number.isFinite(n) ? n : 0;
   }
 
+  function isUntouched(){
+    // "Nothing filled out" = every input is still the default "1"
+    for (const cell of cells) {
+      const input = cell.querySelector("input");
+      if (!input) continue;
+      if (input.value.trim() !== "1") return false;
+    }
+    return true;
+  }
+
   function bandClass(total){
     if (total < 17) return "t-red";
     if (total < 17.5) return "t-orange";
@@ -191,19 +203,21 @@
     return "t-green";
   }
 
-  function setBar(total){
-    const out = total.toFixed(2);
-    barTop.textContent = out;
-    barBottom.textContent = out;
-
-    const cls = bandClass(total);
+  function setBars(text, cls){
     for (const el of [barTop, barBottom]) {
-      el.classList.remove("t-red","t-orange","t-yellow","t-green");
+      el.textContent = text;
+      el.classList.remove("t-white","t-red","t-orange","t-yellow","t-green");
       el.classList.add(cls);
     }
   }
 
   function recalc() {
+    // If untouched, show white bars and 0.00
+    if (isUntouched()) {
+      setBars("0.00", "t-white");
+      return;
+    }
+
     let total = 0;
     for (const cell of cells) {
       const mult = Number(cell.dataset.mult || "0");
@@ -211,7 +225,9 @@
       const val = input ? numOrZero(input.value) : 0;
       total += val * mult;
     }
-    setBar(total);
+
+    const out = total.toFixed(2);
+    setBars(out, bandClass(total));
   }
 
   function resetAll(){
@@ -220,7 +236,6 @@
       if (input) input.value = "1";
     }
     recalc();
-    // focus first actual input (skip the no-input cell)
     const firstInput = document.querySelector(".cell input");
     if (firstInput) firstInput.focus();
   }
@@ -237,6 +252,7 @@
     inp.addEventListener("focus", () => {
       if (inp.value.trim() === "1") inp.value = "";
       setTimeout(() => inp.select?.(), 0);
+      recalc();
     });
 
     inp.addEventListener("blur", () => {
